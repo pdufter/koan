@@ -9,10 +9,10 @@ from collections import Counter
 def get_distances(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
     return cosine_distances(X, Y)
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--vectors", default=None, type=str, required=True, help="")
+    parser.add_argument("--trafo", action="store_true", help="")
     args = parser.parse_args()
     with open(args.vectors) as fp:
         words = []
@@ -40,6 +40,9 @@ def main():
     def get_precision(vectors_x, vectors_y):
         vectors_real = vectors_x[real_indices]
         vectors_fake = vectors_y[fake_indices]
+        if args.trafo:
+            W = np.linalg.inv(vectors_real.transpose().dot(vectors_real)).dot(vectors_real.transpose().dot(vectors_fake))
+            vectors_real = vectors_real.dot(W)
         dist = get_distances(vectors_real, vectors_fake)
         if dist.shape[0] != dist.shape[1]:
             print("Number of words is different?")
@@ -85,7 +88,9 @@ def main():
     print(get_precision(vectors, vectors))
     import ipdb;ipdb.set_trace()
     # x[list(vocab).index("the")].dot(x[list(vocab).index("::the")])
-
+    # vectors[words.index("saith")].dot(vectors[words.index("saith")])
+    # norm[words.index("saith")].dot(norm[words.index("saith")])
+    # norm = vectors / np.linalg.norm(vectors, axis=1).reshape(-1, 1)
 
 if __name__ == '__main__':
     main()
