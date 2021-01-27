@@ -148,17 +148,17 @@ class Trainer {
 
       // Update for positive sample
       // forward pass
-      Real sig_pos = sigmoid(avg.dot(center_word));
+      Real sig_pos = sigmoid((projWc_ * avg).dot(projW_ * center_word));
       if (compute_loss) {
         loss -= std::log(std::max(sig_pos, MIN_SIGMOID_IN_LOSS));
       }
       // backward pass
       if (sig_pos < 1.) {
         source_idx_grad +=
-            center_word * ((sig_pos - 1.) * lr) /
+            (projWc_.transpose() * projW_ * center_word) * ((sig_pos - 1.) * lr) /
             num_source_ids; // ISSUE above, must normalize by number of context
                             // words when updating context embeddings
-        center_word -= avg * ((sig_pos - 1.) * lr);
+        center_word -= (projW_.transpose() * projWc_ * avg) * ((sig_pos - 1.) * lr);
       }
 
       // Updates for negative samples
@@ -167,15 +167,15 @@ class Trainer {
         if (random_idx == center_idx) { continue; }
         auto& rw = ctx_[random_idx]; // random word
         // forward
-        Real sig_neg = sigmoid(avg.dot(rw));
+        Real sig_neg = sigmoid((projWc_ * avg).dot(projW_ * rw));
         if (compute_loss) {
           loss -= std::log(std::max(1._R - sig_neg, MIN_SIGMOID_IN_LOSS));
         }
         // backward
         if (sig_neg > 0.) {
           source_idx_grad +=
-              rw * (sig_neg * lr) / num_source_ids; // ISSUE above
-          rw -= avg * (sig_neg * lr);
+              (projWc_.transpose() * projW_ * rw) * (sig_neg * lr) / num_source_ids; // ISSUE above
+          rw -= (projW_.transpose() * projWc_ * avg) * (sig_neg * lr);
         }
       }
       for (auto source : sources) { // update each source (context)
