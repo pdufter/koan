@@ -21,7 +21,7 @@ def main():
             line = line.strip().split(" ")
             word, vector = line[0], line[1:]
             words.append(word)
-            vectors.append(np.array(vector))
+            vectors.append(np.array([float(x) for x in vector]))
     vectors = np.array(vectors)
     word2index = {w: i for (i, w) in enumerate(words)}
     real_vocab = set([x for x in word2index if not x.startswith("::")])
