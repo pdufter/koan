@@ -38,6 +38,7 @@ constexpr Real operator"" _R(unsigned long long d) {
 }
 
 using Vector = Eigen::Matrix<Real, -1, 1>;
+using Matrix = Eigen::Matrix<Real, -1, -1>;
 using Table = std::vector<Vector>;
 
 using Word = unsigned;

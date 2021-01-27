@@ -19,13 +19,13 @@ build_path:
 debug : koan.cpp build_path
 	$(CXX) $< $(CXXFLAGS) $(DEBUGFLAGS) $(INCLUDES) -o $(BUILD_PATH)/koan
 
-test_utils : tests/test_utils.cpp build_path
-	$(CXX) $< $(CXXFLAGS) $(DEBUGFLAGS) $(INCLUDES) -I./extern/ -o $(BUILD_PATH)/test_utils
+#test_utils : tests/test_utils.cpp build_path
+#	$(CXX) $< $(CXXFLAGS) $(DEBUGFLAGS) $(INCLUDES) -I./extern/ -o $(BUILD_PATH)/test_utils
 
-test_gradcheck : tests/test_gradcheck.cpp build_path
-	$(CXX) $< $(CXXFLAGS) $(DEBUGFLAGS) $(INCLUDES) -I./extern/ -o $(BUILD_PATH)/test_gradcheck
+#test_gradcheck : tests/test_gradcheck.cpp build_path
+#	$(CXX) $< $(CXXFLAGS) $(DEBUGFLAGS) $(INCLUDES) -I./extern/ -o $(BUILD_PATH)/test_gradcheck
 
-all: koan test_utils test_gradcheck
+all: koan # test_utils test_gradcheck
 
 clean:
 	rm -rf $(BUILD_PATH)

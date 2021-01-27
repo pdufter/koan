@@ -61,6 +61,8 @@ class Trainer {
 
   Table& table_; // Input word embeddings (syn1)
   Table& ctx_;   // Output word embeddings (syn0)
+  Matrix& projW_;
+  Matrix& projWc_;
 
  public:
   /// Create trainer
@@ -75,14 +77,18 @@ class Trainer {
           Table& table,
           Table& ctx,
           std::vector<Real> filter_probs,
-          const std::vector<Real>& neg_probs)
+          const std::vector<Real>& neg_probs,
+          Matrix& projW,
+          Matrix& projWc)
       : params_(params),
         filter_probs_(std::move(filter_probs)),
         scratch_(params_.threads),
         scratch2_(params_.threads),
         neg_samplers_(params_.threads, neg_probs),
         table_(table),
-        ctx_(ctx) {
+        ctx_(ctx),
+        projW_(projW),
+        projWc_(projWc) {
     for (unsigned i = 0; i < params_.threads; i++) {
       gens_.emplace_back(123457 + i);
       dists_.emplace_back(0., 1.);

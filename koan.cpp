@@ -43,7 +43,8 @@ using namespace koan;
 int main(int argc, char** argv) {
   srand(123457);
   std::string fname;
-  unsigned dim = 200;
+  unsigned dim = 20;
+  unsigned hidden = 200;
   unsigned ctxs = 5;
   unsigned negatives = 5;
   unsigned num_threads = 1;
@@ -68,6 +69,7 @@ int main(int argc, char** argv) {
   Args args;
   args.add(fname, "f,file", "path", "Path to text file", Required);
   args.add(dim, "d,dim", "n", "Word vector dimension");
+  args.add(hidden, "a,hidden", "n", "Number of hidden variables");
   args.add(ctxs,
            "c,context-size",
            "n",
@@ -157,6 +159,7 @@ int main(int argc, char** argv) {
   args.parse(argc, argv);
 
   Table table, ctx, local(num_threads, Vector::Zero(dim));
+  Matrix projW, projWc;
   std::vector<std::string> ordered_vocab;
   IndexMap<std::string_view> word_map; // ordered_vocab will own the
                                        // actual strings.
@@ -164,6 +167,9 @@ int main(int argc, char** argv) {
   std::unordered_map<std::string, Vector> pretrained_table;
 
   if (not pretrained_path.empty()) {
+    if (hidden > 0) {
+      std::cerr << "WARNING: loading from pretrained path not supported with hidden variables.";
+    }
     long unsigned lines = 0;
     auto counter = mew::Counter(lines,
                                 "Reading pretrained embeddings",
@@ -322,6 +328,13 @@ int main(int argc, char** argv) {
     }
     ctx[w].setZero();
   }
+  // Randomly initialize the upprojections
+  projW.resize(hidden, dim);
+  projWc.resize(hidden, dim);
+  projW.setRandom();
+  projWc.setRandom();
+  projW *= (0.5 / dim);
+  projWc *= (0.5 / dim);
   // pretrained_table not needed after here, save memory
   pretrained_table.clear();
 
@@ -332,7 +345,7 @@ int main(int argc, char** argv) {
       .threads = num_threads,
   };
 
-  Trainer trainer(params, table, ctx, prob, neg_prob);
+  Trainer trainer(params, table, ctx, prob, neg_prob, projW, projWc);
   std::mt19937 g(12345);
 
   std::atomic<size_t> tokens{0}, sents{0}, total_tokens{0};

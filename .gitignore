@@ -1,0 +1,4 @@
+_labels.txt
+_vectors.txt
+build/
+embeddings*.txt
