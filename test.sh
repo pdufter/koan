@@ -5,8 +5,9 @@ cmake ..
 cmake --build ./
 cd ..
 ./build/koan -V 2000000 \
-             --epochs 10 \
-             --dim 300 \
+             --epochs 2 \
+             --dim 20 \
+             --hidden 300 \
              --negatives 5 \
              --context-size 5 \
              -l 0.075 \

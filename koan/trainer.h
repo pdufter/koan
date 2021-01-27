@@ -63,6 +63,7 @@ class Trainer {
   Table& ctx_;   // Output word embeddings (syn0)
   Matrix& projW_;
   Matrix& projWc_;
+  std::unordered_map<int, bool> isfake_;
 
  public:
   /// Create trainer
@@ -79,7 +80,8 @@ class Trainer {
           std::vector<Real> filter_probs,
           const std::vector<Real>& neg_probs,
           Matrix& projW,
-          Matrix& projWc)
+          Matrix& projWc, 
+          std::unordered_map<int, bool>& isfake)
       : params_(params),
         filter_probs_(std::move(filter_probs)),
         scratch_(params_.threads),
@@ -88,7 +90,8 @@ class Trainer {
         table_(table),
         ctx_(ctx),
         projW_(projW),
-        projWc_(projWc) {
+        projWc_(projWc),
+        isfake_(isfake) {
     for (unsigned i = 0; i < params_.threads; i++) {
       gens_.emplace_back(123457 + i);
       dists_.emplace_back(0., 1.);
@@ -164,7 +167,7 @@ class Trainer {
       // Updates for negative samples
       for (unsigned i = 0; i < params_.negatives; i++) {
         Word random_idx = neg_samplers_[tid].sample();
-        if (random_idx == center_idx) { continue; }
+        if (random_idx == center_idx || isfake_[random_idx] != isfake_[center_idx]) { continue; }
         auto& rw = ctx_[random_idx]; // random word
         // forward
         Real sig_neg = sigmoid((projWc_ * avg).dot(projW_ * rw));

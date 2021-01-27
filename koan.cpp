@@ -219,6 +219,7 @@ int main(int argc, char** argv) {
 
   std::unordered_map<std::string, unsigned long long> freqs;
   freqs.reserve(INITIAL_INDEX_SIZE);
+  std::unordered_map<int, bool> isfake;
 
   {
     auto counter =
@@ -281,6 +282,15 @@ int main(int argc, char** argv) {
                    " of sentences in the corpus -- will load entire dataset"
                    " into memory once instead of streaming.\n";
       read_whole_data = true;
+    }
+
+    // Build map for real and fake words
+    for (int i=0; i < ordered_vocab.size(); i++) {
+        if (ordered_vocab[i].rfind("::", 0) == 0) {
+          isfake[i] = true;
+        } else {
+          isfake[i] = false;
+        }
     }
   }
 
@@ -345,7 +355,7 @@ int main(int argc, char** argv) {
       .threads = num_threads,
   };
 
-  Trainer trainer(params, table, ctx, prob, neg_prob, projW, projWc);
+  Trainer trainer(params, table, ctx, prob, neg_prob, projW, projWc, isfake);
   std::mt19937 g(12345);
 
   std::atomic<size_t> tokens{0}, sents{0}, total_tokens{0};
