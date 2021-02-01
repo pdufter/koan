@@ -91,6 +91,10 @@ def main():
     # vectors[words.index("saith")].dot(vectors[words.index("saith")])
     # norm[words.index("saith")].dot(norm[words.index("saith")])
     # norm = vectors / np.linalg.norm(vectors, axis=1).reshape(-1, 1)
+    # vectors_real = vectors[real_indices]
+    # vectors_fake = vectors[fake_indices]
+    # W = np.linalg.inv(vectors_real.transpose().dot(vectors_real)).dot(vectors_real.transpose().dot(vectors_fake))
+    # vectors_real = vectors_real.dot(W)
 
 if __name__ == '__main__':
     main()
