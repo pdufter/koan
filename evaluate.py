@@ -78,9 +78,10 @@ def main():
     def get_details(queries, nns, real, fake):
         for query in queries:
             print("{} - ".format(query), end="")
-            for _, nn in zip(range(10), nns[real.index(query)]):
-                print("{}".format(fake[nn]), end="|")
-            print()
+            if query in real:
+                for _, nn in zip(range(10), nns[real.index(query)]):
+                    print("{}".format(fake[nn]), end="|")
+                print()
 
     dist, nns = get_my_distance(vectors, vectors)
     print("MEAN RANK: {}".format(mean_rank(nns)))
